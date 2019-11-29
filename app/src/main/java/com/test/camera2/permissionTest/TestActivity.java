@@ -8,9 +8,10 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.widget.TextView;
 
+import com.test.camera2.R;
+
 import java.io.File;
 
-import com.test.com.myapplication.R;
 
 /**
  * Created by cmm on 2019/11/13.

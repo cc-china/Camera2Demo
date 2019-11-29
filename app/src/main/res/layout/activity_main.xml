@@ -3,13 +3,12 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context="com.test.com.myapplication.MainActivity">
+    android:layout_height="match_parent">
 
     <TextureView
         android:id="@+id/camera_preview"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
@@ -27,9 +26,24 @@
 
     <ImageView
         android:id="@+id/iv_show"
-        android:layout_width="500dp"
-        android:layout_height="500dp"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
         android:layout_gravity="center_vertical|center_horizontal"
         android:scaleType="fitXY" />
 
+    <RelativeLayout
+        android:id="@+id/relativeLayout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+        <com.test.camera2.customeview.SwitchItemRelativeLayout
+            android:id="@+id/switch_RelativeLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
+            android:background="@drawable/freeme_top_bottom_bar_bg"
+            android:paddingBottom="120dp"
+             />
+    </RelativeLayout>
 </FrameLayout>

@@ -13,6 +13,7 @@ import android.hardware.camera2.CameraDevice;
 import android.hardware.camera2.CameraManager;
 import android.hardware.camera2.CaptureFailure;
 import android.hardware.camera2.CaptureRequest;
+import android.hardware.camera2.CaptureResult;
 import android.hardware.camera2.TotalCaptureResult;
 import android.hardware.camera2.params.StreamConfigurationMap;
 import android.media.Image;
@@ -23,11 +24,18 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Size;
+import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.Surface;
 import android.view.TextureView;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import com.test.camera2.interfaces.IOnGestureListener;
+import com.test.camera2.manager.GestureManager;
+import com.test.camera2.manager.SwitchItemManager;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -47,6 +55,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private Surface imageReaderSurface;
     private ImageView iv_show;
     private CameraCharacteristics cameraCharacteristics;
+    private SwitchItemManager switchItemManager;
+    private GestureManager gestureManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,15 +64,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         ActivityCompat.requestPermissions(
                 this, test, 1);
         setContentView(R.layout.activity_main);
+        gestureManager = new GestureManager(this);
+
         textureView = findViewById(R.id.camera_preview);
+        textureView.setOnTouchListener(new mSurfaceTouchListener());
+
         setTextureViewListener();
 
         TextView tv_context = findViewById(R.id.tv_context);
-
         iv_show = findViewById(R.id.iv_show);
         tv_context.setOnClickListener(this);
-
-
+        switchItemManager = new SwitchItemManager(this, (ViewGroup) findViewById(R.id.relativeLayout));
         File dir = new File(DCIM_CAMERA_FOLDER_ABSOLUTE_PATH);
         dir.mkdirs();
         if (!dir.canWrite()) {
@@ -72,16 +84,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
+    public void setGestureListener(IOnGestureListener listener) {
+        gestureManager.registerGestureListener(listener);
+    }
+
     private void setTextureViewListener() {
         textureView.setSurfaceTextureListener(new TextureView.SurfaceTextureListener() {
             @Override
             public void onSurfaceTextureAvailable(SurfaceTexture surfaceTexture, int width, int height) {
                 MainActivity.this.surfaceTexture = surfaceTexture;
-                MainActivity.this.surfaceTexture.setDefaultBufferSize(1080, 1920);
-
+                MainActivity.this.surfaceTexture.setDefaultBufferSize(500, 500);
                 MainActivity.this.previewSurface.add(new Surface(MainActivity.this.surfaceTexture));
-//                MainActivity.this.surfaceTexture.setDefaultBufferSize(720,480);
-//                MainActivity.this.previewSurface.add(new Surface(MainActivity.this.surfaceTexture));
+                MainActivity.this.previewSurface.add(createImageReader().getSurface());
+
                 getCamera2Manager();
             }
 
@@ -190,14 +205,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         @Override
         public void onCaptureCompleted(@NonNull CameraCaptureSession session, @NonNull CaptureRequest request, @NonNull TotalCaptureResult result) {
-            try {
-                CaptureRequest.Builder requests = cameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW);
-                requests.addTarget(previewSurface.get(0));
-                CaptureRequest build = requests.build();
-                session.capture(build, CameraCaptureSessionSaptureCallback, null);
-            } catch (CameraAccessException e) {
-                e.printStackTrace();
-            }
+//            try {
+//                CaptureRequest.Builder requests = cameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW);
+//                requests.addTarget(previewSurface.get(0));
+//                CaptureRequest build = requests.build();
+//                session.capture(build, CameraCaptureSessionSaptureCallback, null);
+//            } catch (CameraAccessException e) {
+//                e.printStackTrace();
+//            }
         }
 
         @Override
@@ -215,6 +230,26 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         @Override
         public void onCaptureCompleted(@NonNull CameraCaptureSession session, @NonNull CaptureRequest request, @NonNull TotalCaptureResult result) {
             super.onCaptureCompleted(session, request, result);
+        }
+
+        @Override
+        public void onCaptureStarted(@NonNull CameraCaptureSession session, @NonNull CaptureRequest request, long timestamp, long frameNumber) {
+            super.onCaptureStarted(session, request, timestamp, frameNumber);
+        }
+
+        @Override
+        public void onCaptureFailed(@NonNull CameraCaptureSession session, @NonNull CaptureRequest request, @NonNull CaptureFailure failure) {
+            super.onCaptureFailed(session, request, failure);
+        }
+
+        @Override
+        public void onCaptureProgressed(@NonNull CameraCaptureSession session, @NonNull CaptureRequest request, @NonNull CaptureResult partialResult) {
+            super.onCaptureProgressed(session, request, partialResult);
+        }
+
+        @Override
+        public void onCaptureSequenceCompleted(@NonNull CameraCaptureSession session, int sequenceId, long frameNumber) {
+            super.onCaptureSequenceCompleted(session, sequenceId, frameNumber);
         }
     };
     //拿到拍照后照片元数据
@@ -241,7 +276,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         Size[] size = map.getOutputSizes(clazz);
         float aspectRatio = ((float) maxWidth) / ((float) maxHeight);
         for (int i = 0; i < size.length; i++) {
-            if (((float)size[i].getWidth()) / ((float)size[i].getHeight()) == aspectRatio && size[i].getWidth() < maxWidth && size[i].getHeight() < maxHeight) {
+            if (((float) size[i].getWidth()) / ((float) size[i].getHeight()) == aspectRatio && size[i].getWidth() <= maxWidth && size[i].getHeight() <= maxHeight) {
                 return size[i];
             }
         }
@@ -250,10 +285,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     //创建ImageReader
     private ImageReader createImageReader() {
-        Size optionSize = getOptionSize(cameraCharacteristics, ImageReader.class, 1920, 1080);
-        ImageReader imageReader = ImageReader.newInstance(optionSize.getWidth(), optionSize.getHeight(), ImageFormat.JPEG, 5);
+        //Size optionSize = getOptionSize(cameraCharacteristics, ImageReader.class, 1920, 1080);
+        ImageReader imageReader = ImageReader.newInstance(
+                1920, 1080, ImageFormat.JPEG, 2);
         imageReader.setOnImageAvailableListener(imageReaderOnImageAvailableListener, null);
-        imageReaderSurface = imageReader.getSurface();
         return imageReader;
     }
 
@@ -262,8 +297,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         CaptureRequest.Builder takePictureCaptureRequest = null;
         try {
             takePictureCaptureRequest = cameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_STILL_CAPTURE);
-            takePictureCaptureRequest.addTarget(previewSurface.get(0));
-            takePictureCaptureRequest.addTarget(imageReaderSurface);
+//            takePictureCaptureRequest.addTarget(previewSurface.get(0));
+            takePictureCaptureRequest.addTarget(MainActivity.this.previewSurface.get(1));
         } catch (CameraAccessException e) {
             e.printStackTrace();
         }
@@ -274,13 +309,24 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.tv_context:
-                createImageReader();
-                try {
-                    cameraCaptureSession.capture(createCaptureImageRequest(), cameraCaptureSessionCaptureCallback, null);
-                } catch (CameraAccessException e) {
-                    e.printStackTrace();
-                }
+                takePicture(cameraCaptureSession);
                 break;
+        }
+    }
+
+    private void takePicture(CameraCaptureSession cameraCaptureSession) {
+
+        try {
+            cameraCaptureSession.capture(createCaptureImageRequest(), cameraCaptureSessionCaptureCallback, null);
+        } catch (CameraAccessException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private class mSurfaceTouchListener implements View.OnTouchListener {
+        @Override
+        public boolean onTouch(View view, MotionEvent motionEvent) {
+            return gestureManager.getOnTouchListener().onTouch(view,motionEvent);
         }
     }
 }
