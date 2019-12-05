@@ -31,6 +31,14 @@ public class SwitchItemTitleView extends RelativeLayout{
     }
 
     @Override
+    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+        super.onSizeChanged(w, h, oldw, oldh);
+    }
+    boolean mInLayout = false;
+
+
+
+    @Override
     protected void onFinishInflate() {
         super.onFinishInflate();
         tv_title = findViewById(R.id.tv_title);

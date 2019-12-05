@@ -28,7 +28,7 @@ public class SwitchItemRelativeLayout extends RelativeLayout implements SwitchIt
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
-        switchItemModeTitle(getChildCount() / 2, 0);
+        //switchItemModeTitle(getChildCount() / 2, 0);
     }
 
     @Override

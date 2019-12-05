@@ -12,6 +12,5 @@
         android:layout_centerHorizontal="true"
         android:maxLines="1"
         android:singleLine="true"
-        android:minEms="3"
         android:textColor="#ffffff"/>
 </com.test.camera2.customeview.SwitchItemTitleView>

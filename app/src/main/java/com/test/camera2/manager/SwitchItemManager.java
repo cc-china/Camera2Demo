@@ -24,9 +24,9 @@ public class SwitchItemManager {
     public SwitchItemManager(Context ctx, ViewGroup parentView) {
         switch_relativeLayout = parentView.findViewById(R.id.switch_RelativeLayout);
         this.ctx = ctx;
-        ((MainActivity)ctx).setGestureListener(switch_relativeLayout.getGestureListener());
+        ((MainActivity) ctx).setGestureListener(switch_relativeLayout.getGestureListener());
         mInflater = LayoutInflater.from(ctx);
-        fillLayout(17);
+        fillLayout(13);
     }
 
     private SwitchItemTitleView prevFill = null;
@@ -42,14 +42,15 @@ public class SwitchItemManager {
                 switchItemTitleView.setId(View.generateViewId());
                 switchItemTitleView.setSwitchItemTitleViewClickListener(switch_relativeLayout);
                 switch_relativeLayout.addView(switchItemTitleView);
-                RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams) switchItemTitleView.getLayoutParams();
+                RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) switchItemTitleView.getLayoutParams();
                 if (prevFill == null) {
-                    layoutParams.addRule(RelativeLayout.CENTER_HORIZONTAL);
+                    params.addRule(RelativeLayout.CENTER_HORIZONTAL);
                 } else {
-                    layoutParams.addRule(RelativeLayout.RIGHT_OF, prevFill.getId());
-                    layoutParams.leftMargin = 30;
+                    params.addRule(RelativeLayout.RIGHT_OF, prevFill.getId());
+                    params.leftMargin = 30;
                 }
-                switchItemTitleView.setLayoutParams(layoutParams);
+                switchItemTitleView.setLayoutParams(params);
+
                 prevFill = switchItemTitleView;
             }
         }

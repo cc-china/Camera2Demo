@@ -36,6 +36,7 @@ import android.widget.TextView;
 import com.test.camera2.interfaces.IOnGestureListener;
 import com.test.camera2.manager.GestureManager;
 import com.test.camera2.manager.SwitchItemManager;
+import com.test.camera2.module.BackCameraMode;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -57,6 +58,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private CameraCharacteristics cameraCharacteristics;
     private SwitchItemManager switchItemManager;
     private GestureManager gestureManager;
+    private BackCameraMode mode;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,7 +71,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         textureView = findViewById(R.id.camera_preview);
         textureView.setOnTouchListener(new mSurfaceTouchListener());
 
-        setTextureViewListener();
+        //setTextureViewListener();
+        mode = new BackCameraMode(this,textureView);
 
         TextView tv_context = findViewById(R.id.tv_context);
         iv_show = findViewById(R.id.iv_show);
@@ -82,6 +85,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         } else {
             tv_context.setText("拍照" + dir.canWrite());
         }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+       //mode.onResume();
     }
 
     public void setGestureListener(IOnGestureListener listener) {
@@ -285,9 +294,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     //创建ImageReader
     private ImageReader createImageReader() {
-        //Size optionSize = getOptionSize(cameraCharacteristics, ImageReader.class, 1920, 1080);
+        Size optionSize = getOptionSize(cameraCharacteristics, ImageReader.class, 1920, 1080);
         ImageReader imageReader = ImageReader.newInstance(
-                1920, 1080, ImageFormat.JPEG, 2);
+                optionSize.getWidth(), optionSize.getHeight(), ImageFormat.JPEG, 2);
         imageReader.setOnImageAvailableListener(imageReaderOnImageAvailableListener, null);
         return imageReader;
     }
