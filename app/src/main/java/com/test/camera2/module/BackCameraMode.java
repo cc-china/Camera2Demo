@@ -3,17 +3,24 @@ package com.test.camera2.module;
 import android.content.Context;
 import android.graphics.SurfaceTexture;
 import android.hardware.camera2.CameraAccessException;
+import android.hardware.camera2.CameraCaptureSession;
 import android.hardware.camera2.CameraDevice;
 import android.hardware.camera2.CameraManager;
+import android.hardware.camera2.CaptureFailure;
 import android.hardware.camera2.CaptureRequest;
+import android.hardware.camera2.CaptureResult;
+import android.hardware.camera2.TotalCaptureResult;
+import android.media.ImageReader;
 import android.os.Handler;
 import android.os.Message;
+import android.support.annotation.NonNull;
 import android.util.Log;
 import android.view.Surface;
 import android.view.TextureView;
 
 import com.test.camera2.camera2.BaseCameraMode;
 import com.test.camera2.camera2.ICameraMode;
+import com.test.camera2.camera2.ImageReaderUtils;
 
 
 /**
@@ -25,7 +32,6 @@ public class BackCameraMode extends BaseCameraMode implements ICameraMode {
     private final BackCameraController backCameraController;
     private final CameraManager cameraManager;
     private String[] cameraIdList;
-
 
 
     public BackCameraMode(Context ctx, TextureView textureView) {
@@ -64,6 +70,27 @@ public class BackCameraMode extends BaseCameraMode implements ICameraMode {
         backCameraController.onDestroy();
     }
 
+    @Override
+    protected void takePicture(CameraCaptureSession session) {
+        try {
+            session.capture(createCaptureImageRequest(), cameraCaptureSessionCaptureCallback, null);
+        } catch (CameraAccessException e) {
+            e.printStackTrace();
+        }
+    }
+
+    //创建captureRequest
+    private CaptureRequest createCaptureImageRequest() {
+        CaptureRequest.Builder takePictureCaptureRequest = null;
+        try {
+            takePictureCaptureRequest = cameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_STILL_CAPTURE);
+            takePictureCaptureRequest.addTarget(mSurfaceList.get(1));
+        } catch (CameraAccessException e) {
+            e.printStackTrace();
+        }
+        return takePictureCaptureRequest.build();
+    }
+
     private void getCameraIdList() {
         try {
             cameraIdList = cameraManager.getCameraIdList();
@@ -88,7 +115,7 @@ public class BackCameraMode extends BaseCameraMode implements ICameraMode {
         public boolean handleMessage(Message msg) {
             switch (msg.what){
                 case 1:
-                    CameraDevice cameraDevice = (CameraDevice) msg.obj;
+                    BackCameraMode.super.cameraDevice = (CameraDevice) msg.obj;
                     backCameraController.configurationRepeatingBuild(configurationBuild(cameraDevice));
                     break;
             }
@@ -124,4 +151,5 @@ public class BackCameraMode extends BaseCameraMode implements ICameraMode {
             }
         });
     }
+
 }

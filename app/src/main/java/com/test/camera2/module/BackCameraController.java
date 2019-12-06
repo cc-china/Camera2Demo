@@ -16,13 +16,14 @@ import java.util.List;
 
 /**
  * Created by cmm on 2019/12/5.
+ *
  */
 
 public class BackCameraController extends BaseCameraController implements ICameraController {
 
 
     BackCameraController(Context ctx, Handler mHandler) {
-        super(ctx,mHandler);
+        super(ctx, mHandler);
     }
 
     @Override
