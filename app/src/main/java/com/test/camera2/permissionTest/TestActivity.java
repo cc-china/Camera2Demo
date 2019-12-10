@@ -11,6 +11,11 @@ import android.widget.TextView;
 import com.test.camera2.R;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 
 
 /**
@@ -40,6 +45,25 @@ public class TestActivity extends Activity {
             tv_context.setText("错误");
         } else {
             tv_context.setText("正确" + dir.canWrite());
+        }
+
+        try {
+            FileOutputStream fos = new FileOutputStream("a.txt");
+            ObjectOutputStream oos = new ObjectOutputStream(fos);
+
+            oos.writeObject(new Object());
+            oos.close();
+            fos.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        try {
+            FileInputStream fis = new FileInputStream("a.txt");
+            ObjectInputStream ois = new ObjectInputStream(fis);
+            Object o = ois.readObject();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 

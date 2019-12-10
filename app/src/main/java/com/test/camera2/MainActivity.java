@@ -12,10 +12,10 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.test.camera2.feature.photo.module.BackCameraMode;
 import com.test.camera2.interfaces.IOnGestureListener;
 import com.test.camera2.manager.GestureManager;
 import com.test.camera2.manager.SwitchItemManager;
-import com.test.camera2.module.BackCameraMode;
 
 import java.io.File;
 
@@ -34,6 +34,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         ActivityCompat.requestPermissions(
                 this, test, 1);
         setContentView(R.layout.activity_main);
@@ -41,8 +42,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         textureView = findViewById(R.id.camera_preview);
         textureView.setOnTouchListener(new mSurfaceTouchListener());
-
-        mode = new BackCameraMode(this,textureView);
+    
+        mode = new BackCameraMode(this, textureView);
 
         TextView tv_context = findViewById(R.id.tv_context);
         ImageView iv_show = findViewById(R.id.iv_show);
@@ -60,12 +61,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     protected void onResume() {
         super.onResume();
-       //mode.onResume();
+        //mode.onResume();
+
     }
 
     public void setGestureListener(IOnGestureListener listener) {
         gestureManager.registerGestureListener(listener);
     }
+
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
@@ -77,7 +80,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private class mSurfaceTouchListener implements View.OnTouchListener {
         @Override
         public boolean onTouch(View view, MotionEvent motionEvent) {
-            return gestureManager.getOnTouchListener().onTouch(view,motionEvent);
+            return gestureManager.getOnTouchListener().onTouch(view, motionEvent);
         }
     }
 }

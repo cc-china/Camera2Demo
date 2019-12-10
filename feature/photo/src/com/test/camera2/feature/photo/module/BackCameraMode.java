@@ -6,25 +6,20 @@ import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCaptureSession;
 import android.hardware.camera2.CameraDevice;
 import android.hardware.camera2.CameraManager;
-import android.hardware.camera2.CaptureFailure;
 import android.hardware.camera2.CaptureRequest;
-import android.hardware.camera2.CaptureResult;
-import android.hardware.camera2.TotalCaptureResult;
-import android.media.ImageReader;
 import android.os.Handler;
 import android.os.Message;
-import android.support.annotation.NonNull;
 import android.util.Log;
 import android.view.Surface;
 import android.view.TextureView;
 
 import com.test.camera2.camera2.BaseCameraMode;
 import com.test.camera2.camera2.ICameraMode;
-import com.test.camera2.camera2.ImageReaderUtils;
 
 
 /**
  * Created by cmm on 2019/12/5.
+ *
  */
 
 public class BackCameraMode extends BaseCameraMode implements ICameraMode {
